@@ -8,7 +8,8 @@ const APIKey = '16ed9761819e51f4a5ecad833971e589';
 class App extends React.Component {
 
   state = {
-    search: '',
+    search: 'Ostróda',
+    activeItem: 'main',
     charts: {
       city: '',
       country: '',
@@ -17,8 +18,8 @@ class App extends React.Component {
       pressure: '',
       wind: '',
       weather: '',
-      icon: ''
-    }
+    },
+    error: ''
   }
 
   handleInputChange = (e) => {
@@ -28,17 +29,23 @@ class App extends React.Component {
     this.setState({
       search
     })
+
+  }
+
+  handleButtonClick = (e) => {
+    this.setState({
+      activeItem: 'search'
+    })
   }
 
   handleFormSubmit = e => {
     e.preventDefault()
   }
 
-  handleDataFetch = () => {
+  handleSearchConfirm = () => {
 
     fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.search}&appid=${APIKey}&units=metric`)
       .then(res => {
-        // console.log(res)
         if (res.ok) {
           return res
         } else {
@@ -52,35 +59,75 @@ class App extends React.Component {
         const time = new Date();
         const timeStr = time.toISOString();
         const date = timeStr.substr(0, 10) + ' ' + timeStr.substr(11, 5);
-        // const country = this.getCountryName(data.sys.country)
+        let weather = data.weather[0].main;
+
+        if (['Mist', 'Smoke', 'Haze', 'Dust', 'Fog', 'Sand', 'Ash', 'Squall', 'Tornado'].includes(weather)) weather = 'Mist'
 
         this.setState({
           charts: {
             city: data.name,
-            // country,
             time: date,
             temperature: Math.round(data.main.temp),
             pressure: data.main.pressure,
             wind: data.wind.speed,
-            weather: data.weather[0].main,
-            icon: data.weather[0].icon
-          }
+            weather,
+          },
+          activeItem: 'main',
+          error: null,
         })
       })
-      .catch(err => console.log('Błąd podczas pobierania danych. ' + err))
+      .catch(err => {
+        console.log('Błąd podczas pobierania danych. ' + err);
+
+        this.setState({
+          error: err
+        })
+      })
+
+  }
+
+  componentDidMount() {
+    this.handleSearchConfirm()
   }
 
   render() {
 
-    const appStyle = {
-      backgroundImage: `url(${process.env.PUBLIC_URL}/images/blue-sky.jpg`
+    const weather = this.state.charts.weather;
+
+    const weatherBackgrounds = {
+      'Clear': "blue-sky.jpg",
+      'Clouds': "clouds.jpg",
+      'Mist': "mist.jpg",
+      'Drizzle': 'drizzle.jpg',
+      'Rain': "rain.jpeg",
+      'Snow': "snow.jpg",
+      'Thunderstorm': 'storm.jpg'
     }
+
+    function getWeatherBackground(weather) {
+      console.log('bg change')
+      if (weatherBackgrounds.hasOwnProperty(weather)) {
+        return weatherBackgrounds[weather];
+      } else {
+        return "blue-sky.jpg";
+      }
+    }
+
+    const appStyle = {
+      backgroundImage: `url(${process.env.PUBLIC_URL}/images/${getWeatherBackground(weather)}`,
+    }
+
+    const activeItem = this.state.activeItem;
 
     return (
       <div className="App" style={appStyle}>
-        {/* <h2 className="name">Pogoda na już</h2> */}
-        <SearchTab search={this.state.search} change={this.handleInputChange} click={this.handleDataFetch} submit={this.handleFormSubmit} />
-        <Charts charts={this.state.charts} />
+        <div className="colorFade">
+          {activeItem === 'search' && <SearchTab search={this.state.search} error={this.state.error} change={this.handleInputChange} click={this.handleSearchConfirm} submit={this.handleFormSubmit} />}
+          {activeItem === 'main' && <div className="wrap">
+            <button className="showSearch" onClick={this.handleButtonClick}><i className="fas fa-search"></i></button>
+            <Charts charts={this.state.charts} />
+          </div>}
+        </div>
       </div>
     )
   };

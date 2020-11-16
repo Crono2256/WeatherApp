@@ -2,54 +2,60 @@ import React from 'react';
 
 const Charts = ({ charts }) => {
 
-  const { city, country, time, temperature, pressure, wind, weather, icon } = charts;
+  const { city, time, temperature, pressure, wind, weather, icon } = charts;
 
-  const weatherWords = {
-    'Clear': 'Słonecznie',
-    'Clouds': 'Zachmurzenie',
-    'Mist': 'Mgła',
-    'Rain': 'Deszcz',
-    'Snow': 'Śnieg'
+  const weatherIcons = {
+    'Clear': "fas fa-sun",
+    'Clouds': "fas fa-cloud",
+    'Mist': "fas fa-smog",
+    'Drizzle': "fas fa-cloud-rain",
+    'Rain': "fas fa-cloud-showers-heavy",
+    'Snow': "far fa-snowflake",
+    'Thunderstorm': "fas fa-bolt"
   }
 
-  function translateWeather(weather) {
-    if (weatherWords.hasOwnProperty(weather)) {
-      return weatherWords[weather];
+  function getWeatherIcon(weather) {
+    if (weatherIcons.hasOwnProperty(weather)) {
+      return <i className={weatherIcons[weather]}></i>;
     } else {
-      return weather;
+      return <i className="fas fa-cloud"></i>;
     }
   }
 
   return (
     <div className="charts">
-      <div className="city chart">
-        <span className="tag">Miasto: </span>
-        <span className="data">{city}</span>
+
+      <div className="main">
+        <div className="city chart">
+          <h3 className="data">{city}</h3>
+        </div>
+        <div className="sub">
+          <div className="temperature chart">
+            <span className="data">{temperature}<span className="unit">&deg;C</span></span>
+          </div>
+          <div className="weather chart">
+            {getWeatherIcon(weather)}
+          </div>
+        </div>
       </div>
-      {/* <div className="country">
-        <span className="tag">: </span>
-        <span className="data">{country}</span>
-      </div> */}
-      <div className="time chart">
-        <span className="tag">Data: </span>
-        <span className="data">{time}</span>
+
+      <div className="other">
+        <div className="time chart">
+          <span className="tag">Data: </span>
+          <span className="data">{time}</span>
+        </div>
+
+        <div className="pressure chart">
+          <span className="tag">Ciśnienie: </span>
+          <span className="data">{pressure}<span className="unit"> hPa</span></span>
+        </div>
+
+        <div className="wind chart">
+          <span className="tag">Prędkość wiatru: </span>
+          <span className="data">{wind}<span className="unit"> m/s</span></span>
+        </div>
       </div>
-      <div className="temperature chart">
-        <span className="tag">Temperatura: </span>
-        <span className="data">{temperature}{temperature && <span className="unit">&deg;C</span>}</span>
-      </div>
-      <div className="pressure chart">
-        <span className="tag">Ciśnienie: </span>
-        <span className="data">{pressure}{pressure && <span className="unit"> hPa</span>}</span>
-      </div>
-      <div className="wind chart">
-        <span className="tag">Prędkość wiatru: </span>
-        <span className="data">{wind}{wind && <span className="unit"> m/s</span>}</span>
-      </div>
-      <div className="weather chart">
-        <span className="tag">Pogoda: </span>
-        <span className="data">{translateWeather(weather)}{weather && <img className="icon" src={"http://openweathermap.org/img/w/" + icon + ".png"} alt="weather icon" />}</span>
-      </div>
+
     </div>
   );
 }
