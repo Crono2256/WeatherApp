@@ -44,7 +44,7 @@ class App extends React.Component {
 
   handleSearchConfirm = () => {
 
-    fetch(`http://api.openweathermap.org/data/2.5/weather?q=${this.state.search}&appid=${APIKey}&units=metric`)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.state.search}&appid=${APIKey}&units=metric`)
       .then(res => {
         if (res.ok) {
           return res
